@@ -1,32 +1,41 @@
 name: Android APK
+
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'mobile/**'
+      - 'FerrariPOS_Mobile/mobile/**'
       - '.github/workflows/android.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: mobile
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.5'
           channel: stable
           cache: true
+
       - name: Create Android platform
+        working-directory: FerrariPOS_Mobile/mobile
         run: flutter create . --platforms=android --project-name=ferrari_pos_mobile
+
       - name: Dependencies
+        working-directory: FerrariPOS_Mobile/mobile
         run: flutter pub get
+
       - name: Build APK
+        working-directory: FerrariPOS_Mobile/mobile
         run: flutter build apk --release
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FerrariPOS-Android
-          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+          path: FerrariPOS_Mobile/mobile/build/app/outputs/flutter-apk/app-release.apk
