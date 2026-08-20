@@ -1,41 +1,45 @@
-name: Android APK
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
+}
 
-on:
-  workflow_dispatch:
-  push:
-    paths:
-      - 'FerrariPOS_Mobile/mobile/**'
-      - '.github/workflows/android.yml'
+android {
+    namespace = "com.ferrarispos.manager"
+    compileSdk = 35
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+    defaultConfig {
+        applicationId = "com.ferrarispos.manager"
+        minSdk = 26
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+    }
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    // Java y Kotlin deben utilizar el mismo objetivo JVM.
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.5'
-          channel: stable
-          cache: true
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
 
-      - name: Create Android platform
-        working-directory: FerrariPOS_Mobile/mobile
-        run: flutter create . --platforms=android --project-name=ferrari_pos_mobile
+dependencies {
+    implementation(platform("androidx.compose:compose-bom:2025.01.00"))
 
-      - name: Dependencies
-        working-directory: FerrariPOS_Mobile/mobile
-        run: flutter pub get
+    implementation("androidx.activity:activity-compose:1.10.1")
 
-      - name: Build APK
-        working-directory: FerrariPOS_Mobile/mobile
-        run: flutter build apk --release
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui-tooling-preview")
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: FerrariPOS-Android
-          path: FerrariPOS_Mobile/mobile/build/app/outputs/flutter-apk/app-release.apk
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+}
